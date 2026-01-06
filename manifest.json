@@ -1,0 +1,10 @@
+{
+    "id": "inline-backlinks",
+    "name": "Inline Backlinks",
+    "version": "1.0.0",
+    "minAppVersion": "1.0.0",
+    "description": "Displays backlinks inline above the note content as foldable elements showing all lines that reference the current note.",
+    "author": "Florian Schaefer",
+    "authorUrl": "",
+    "isDesktopOnly": false
+}

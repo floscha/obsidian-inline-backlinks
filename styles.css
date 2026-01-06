@@ -1,0 +1,150 @@
+/* Inline Backlinks Plugin Styles */
+
+.inline-backlinks-container {
+  margin: 1em;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background-color: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  font-size: 0.9em;
+}
+
+.inline-backlinks-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--background-modifier-border);
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.inline-backlinks-icon {
+  opacity: 0.7;
+  display: flex;
+  align-items: center;
+}
+
+.inline-backlinks-icon svg {
+  width: 14px;
+  height: 14px;
+  display: block;
+  stroke: currentColor;
+}
+
+.inline-backlinks-count {
+  font-size: 0.85em;
+}
+
+.inline-backlinks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.inline-backlink-item {
+  border-radius: 4px;
+  background-color: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  overflow: hidden;
+}
+
+.inline-backlink-item[open] {
+  background-color: var(--background-primary-alt);
+}
+
+.inline-backlink-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+}
+
+.inline-backlink-summary::-webkit-details-marker {
+  display: none;
+}
+
+.inline-backlink-summary::before {
+  content: "▶";
+  font-size: 0.7em;
+  color: var(--text-muted);
+  transition: transform 0.15s ease;
+}
+
+.inline-backlink-item[open]>.inline-backlink-summary::before {
+  transform: rotate(90deg);
+}
+
+.inline-backlink-summary:hover {
+  background-color: var(--background-modifier-hover);
+}
+
+.inline-backlink-name {
+  color: var(--text-accent);
+  font-weight: 500;
+  flex: 1;
+}
+
+.inline-backlink-lines {
+  margin: 0;
+  padding: 2px 8px 6px 24px;
+  list-style: none;
+}
+
+.inline-backlink-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 2px 6px;
+  margin: 0;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.1s ease;
+}
+
+.inline-backlink-line:hover {
+  background-color: var(--background-modifier-hover);
+}
+
+.inline-backlink-line-content {
+  color: var(--text-normal);
+  font-size: 0.9em;
+  line-height: 1.3;
+  word-break: break-word;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* Hover hint for opening file */
+.inline-backlink-summary::after {
+  content: "Ctrl+Click to open";
+  font-size: 0.75em;
+  color: var(--text-faint);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  margin-left: auto;
+}
+
+.inline-backlink-summary:hover::after {
+  opacity: 1;
+}
+
+/* Dark theme adjustments */
+.theme-dark .inline-backlinks-container {
+  background-color: var(--background-secondary);
+}
+
+.theme-dark .inline-backlink-item {
+  background-color: var(--background-primary);
+}
+
+.theme-dark .inline-backlink-item[open] {
+  background-color: var(--background-secondary-alt);
+}
