@@ -233,6 +233,16 @@ export default class InlineBacklinksPlugin extends Plugin {
                 MarkdownRenderer.render(this.app, line.content, contentSpan, backlink.sourcePath, this);
 
                 lineEl.addEventListener("click", async (e) => {
+                    const target = e.target as HTMLElement;
+                    if (target instanceof HTMLInputElement && target.type === "checkbox") {
+                        e.stopPropagation();
+                        const file = this.app.vault.getAbstractFileByPath(backlink.sourcePath);
+                        if (file instanceof TFile) {
+                            await this.toggleCheckboxInFile(file, line.lineNumber, target.checked);
+                        }
+                        return;
+                    }
+
                     e.stopPropagation();
                     const file = this.app.vault.getAbstractFileByPath(backlink.sourcePath);
                     if (file instanceof TFile) {
@@ -266,6 +276,29 @@ export default class InlineBacklinksPlugin extends Plugin {
         // Insert at the very beginning of contentEl (before any child elements)
         // This places it above both the reading view and the editing view
         contentEl.insertBefore(container, contentEl.firstChild);
+    }
+
+    async toggleCheckboxInFile(file: TFile, lineNumber: number, isChecked: boolean) {
+        await this.app.vault.process(file, (content) => {
+            const lines = content.split("\n");
+            if (lineNumber > 0 && lineNumber <= lines.length) {
+                const lineIndex = lineNumber - 1;
+                const originalLine = lines[lineIndex];
+
+                // Match checkbox: - [ ] or - [x] or * [ ] or 1. [ ] etc.
+                const checkboxRegex = /^(\s*(?:[-*+]|\d+\.)\s+\[(.)\])/;
+                const match = originalLine.match(checkboxRegex);
+
+                if (match) {
+                    const fullMatch = match[1];
+                    const charMatch = match[2];
+                    const newChar = isChecked ? "x" : " ";
+                    const newLine = originalLine.replace(fullMatch, fullMatch.replace(`[${charMatch}]`, `[${newChar}]`));
+                    lines[lineIndex] = newLine;
+                }
+            }
+            return lines.join("\n");
+        });
     }
 
     escapeHtml(str: string): string {
