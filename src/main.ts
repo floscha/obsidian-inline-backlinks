@@ -4,6 +4,7 @@ import {
     TFile,
     WorkspaceLeaf,
     setIcon,
+    MarkdownRenderer,
 } from "obsidian";
 
 interface BacklinkData {
@@ -226,7 +227,10 @@ export default class InlineBacklinksPlugin extends Plugin {
             backlink.matchingLines.forEach((line) => {
                 const lineEl = document.createElement("li");
                 lineEl.className = "inline-backlink-line";
-                lineEl.innerHTML = `<span class="inline-backlink-line-content">${this.escapeHtml(line.content)}</span>`;
+
+                const contentSpan = lineEl.createSpan({ cls: "inline-backlink-line-content" });
+                // Render markdown content
+                MarkdownRenderer.render(this.app, line.content, contentSpan, backlink.sourcePath, this);
 
                 lineEl.addEventListener("click", async (e) => {
                     e.stopPropagation();

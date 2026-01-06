@@ -90,6 +90,9 @@
 }
 
 .inline-backlink-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   margin: 0;
   padding: 2px 8px 6px 24px;
   list-style: none;
@@ -119,7 +122,17 @@
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
+}
+
+.inline-backlink-line-content>* {
+  margin: 0;
+}
+
+.inline-backlink-line-content input[type="checkbox"] {
+  margin-bottom: 2px;
+  vertical-align: middle;
 }
 
 /* Hover hint for opening file */
