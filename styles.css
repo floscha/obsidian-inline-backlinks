@@ -2,7 +2,7 @@
 
 .inline-backlinks-container {
   margin: 1em;
-  padding: 8px 12px;
+  padding: 8px 10px;
   border-radius: 8px;
   background-color: var(--background-secondary);
   border: 1px solid var(--background-modifier-border);
@@ -57,8 +57,8 @@
 .inline-backlink-summary {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 4px 8px;
+  gap: 6px;
+  padding: 4px 6px;
   cursor: pointer;
   user-select: none;
   list-style: none;
@@ -94,7 +94,7 @@
   flex-direction: column;
   gap: 4px;
   margin: 0;
-  padding: 2px 8px 6px 24px;
+  padding: 4px;
   list-style: none;
 }
 
