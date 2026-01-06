@@ -2,6 +2,11 @@
 
 An Obsidian plugin that displays backlinks inline above your note content. Each linking note appears as a foldable element that reveals all lines containing links to the current file.
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/images/screenshot_dark.png">
+  <img alt="Screenshot of the plugin" src=".github/images/screenshot_light.png">
+</picture>
+
 ## Features
 
 - **Inline Backlinks Panel**: Shows all notes that link to the current note at the top of the document.
