@@ -43,17 +43,6 @@
   gap: 2px;
 }
 
-.inline-backlink-item {
-  border-radius: 4px;
-  background-color: var(--background-primary);
-  border: 1px solid var(--background-modifier-border);
-  overflow: hidden;
-}
-
-.inline-backlink-item[open] {
-  background-color: var(--background-primary-alt);
-}
-
 .inline-backlink-summary {
   display: flex;
   align-items: center;
@@ -155,9 +144,9 @@
 }
 
 .theme-dark .inline-backlink-item {
-  background-color: var(--background-primary);
+  background-color: transparent;
 }
 
 .theme-dark .inline-backlink-item[open] {
-  background-color: var(--background-secondary-alt);
+  background-color: transparent;
 }
