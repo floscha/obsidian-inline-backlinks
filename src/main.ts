@@ -178,10 +178,14 @@ export default class InlineBacklinksPlugin extends Plugin {
         // Create backlinks container
         const container = document.createElement("div");
         container.className = "inline-backlinks-container";
+    container.setAttribute("data-collapsed", "false");
 
         // Create header
         const header = document.createElement("div");
         header.className = "inline-backlinks-header";
+    header.setAttribute("role", "button");
+    header.setAttribute("tabindex", "0");
+    header.setAttribute("aria-expanded", "true");
 
         const iconSpan = document.createElement("span");
         iconSpan.className = "inline-backlinks-icon";
@@ -192,6 +196,25 @@ export default class InlineBacklinksPlugin extends Plugin {
         countSpan.className = "inline-backlinks-count";
         countSpan.textContent = `${backlinks.length} backlink${backlinks.length !== 1 ? "s" : ""}`;
         header.appendChild(countSpan);
+
+        const toggleCollapsed = () => {
+            const isCollapsed = container.classList.toggle("is-collapsed");
+            container.setAttribute("data-collapsed", isCollapsed ? "true" : "false");
+            header.setAttribute("aria-expanded", isCollapsed ? "false" : "true");
+        };
+
+        header.addEventListener("click", (e) => {
+            // Don't interfere with other click behaviors in the panel.
+            e.preventDefault();
+            toggleCollapsed();
+        });
+
+        header.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                toggleCollapsed();
+            }
+        });
 
         container.appendChild(header);
 
