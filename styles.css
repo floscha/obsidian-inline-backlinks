@@ -160,6 +160,19 @@
   vertical-align: middle;
 }
 
+.inline-backlink-subtasks {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.inline-backlink-subtask {
+  opacity: 0.95;
+}
+
 /* Hover hint for opening file */
 .inline-backlink-summary::after {
   content: "Ctrl+Click to open";

@@ -10,7 +10,11 @@ import {
 interface BacklinkData {
     sourcePath: string;
     sourceBasename: string;
-    matchingLines: { lineNumber: number; content: string }[];
+    matchingLines: {
+        lineNumber: number;
+        content: string;
+        subtasks?: { lineNumber: number; content: string }[];
+    }[];
 }
 
 export default class InlineBacklinksPlugin extends Plugin {
@@ -123,8 +127,8 @@ export default class InlineBacklinksPlugin extends Plugin {
     async findMatchingLines(
         sourceFile: TFile,
         targetFile: TFile
-    ): Promise<{ lineNumber: number; content: string }[]> {
-        const matchingLines: { lineNumber: number; content: string }[] = [];
+    ): Promise<{ lineNumber: number; content: string; subtasks?: { lineNumber: number; content: string }[] }[]> {
+        const matchingLines: { lineNumber: number; content: string; subtasks?: { lineNumber: number; content: string }[] }[] = [];
 
         try {
             const content = await this.app.vault.cachedRead(sourceFile);
@@ -133,6 +137,17 @@ export default class InlineBacklinksPlugin extends Plugin {
             const targetBasename = targetFile.basename;
             const targetPath = targetFile.path;
             const targetPathNoExt = targetPath.replace(/\.md$/, "");
+
+            const isTaskLine = (l: string) => {
+                // Matches common task syntax variants in Obsidian markdown.
+                // Examples: "- [ ] task", "\t- [x] done", "    - [ ] task"
+                return /^\s*[-*+]\s+\[[ xX]\]\s+/.test(l);
+            };
+
+            const indentPrefix = (l: string) => {
+                const m = l.match(/^(\s*)/);
+                return m ? m[1] : "";
+            };
 
             lines.forEach((line, index) => {
                 const lowerLine = line.toLowerCase();
@@ -150,10 +165,45 @@ export default class InlineBacklinksPlugin extends Plugin {
                     lowerLine.includes(`](${targetBasename.toLowerCase()}.md)`);
 
                 if (hasWikilink || hasMarkdownLink) {
-                    matchingLines.push({
+                    const item: { lineNumber: number; content: string; subtasks?: { lineNumber: number; content: string }[] } = {
                         lineNumber: index + 1,
                         content: line.trim(),
-                    });
+                    };
+
+                    // If this is a task line, also capture immediate subtasks.
+                    // Definition: subsequent task lines that appear right after the matched line
+                    // and are indented exactly one tab more than the matched line's indentation.
+                    if (isTaskLine(line)) {
+                        const parentIndent = indentPrefix(line);
+                        const expectedChildIndent = `${parentIndent}\t`;
+
+                        const subtasks: { lineNumber: number; content: string }[] = [];
+                        for (let j = index + 1; j < lines.length; j++) {
+                            const nextLine = lines[j];
+                            if (nextLine.trim().length === 0) {
+                                // Stop at first blank line; "appear right after" implies contiguous.
+                                break;
+                            }
+
+                            // Must be a task and have exactly one extra tab.
+                            if (isTaskLine(nextLine) && nextLine.startsWith(expectedChildIndent)) {
+                                subtasks.push({
+                                    lineNumber: j + 1,
+                                    content: nextLine.trim(),
+                                });
+                                continue;
+                            }
+
+                            // First non-matching line ends the immediate subtask block.
+                            break;
+                        }
+
+                        if (subtasks.length > 0) {
+                            item.subtasks = subtasks;
+                        }
+                    }
+
+                    matchingLines.push(item);
                 }
             });
         } catch (error) {
@@ -288,6 +338,55 @@ export default class InlineBacklinksPlugin extends Plugin {
                 });
 
                 linesContainer.appendChild(lineEl);
+
+                if (line.subtasks && line.subtasks.length > 0) {
+                    const subList = document.createElement("ul");
+                    subList.className = "inline-backlink-subtasks";
+
+                    line.subtasks.forEach((sub) => {
+                        const subEl = document.createElement("li");
+                        subEl.className = "inline-backlink-line inline-backlink-subtask";
+
+                        const subContentSpan = subEl.createSpan({ cls: "inline-backlink-line-content" });
+                        MarkdownRenderer.render(this.app, sub.content, subContentSpan, backlink.sourcePath, this);
+
+                        subEl.addEventListener("click", async (e) => {
+                            const target = e.target as HTMLElement;
+                            if (target instanceof HTMLInputElement && target.type === "checkbox") {
+                                e.stopPropagation();
+                                const file = this.app.vault.getAbstractFileByPath(backlink.sourcePath);
+                                if (file instanceof TFile) {
+                                    await this.toggleCheckboxInFile(file, sub.lineNumber, target.checked);
+                                }
+                                return;
+                            }
+
+                            e.stopPropagation();
+                            const file = this.app.vault.getAbstractFileByPath(backlink.sourcePath);
+                            if (file instanceof TFile) {
+                                const leaf = this.app.workspace.getLeaf(false);
+                                await leaf.openFile(file);
+
+                                const activeView = this.app.workspace.getActiveViewOfType(MarkdownView);
+                                if (activeView) {
+                                    const editor = activeView.editor;
+                                    if (editor) {
+                                        const lineIndex = sub.lineNumber - 1;
+                                        editor.setCursor({ line: lineIndex, ch: 0 });
+                                        editor.scrollIntoView(
+                                            { from: { line: lineIndex, ch: 0 }, to: { line: lineIndex, ch: 0 } },
+                                            true
+                                        );
+                                    }
+                                }
+                            }
+                        });
+
+                        subList.appendChild(subEl);
+                    });
+
+                    linesContainer.appendChild(subList);
+                }
             });
 
             details.appendChild(linesContainer);
